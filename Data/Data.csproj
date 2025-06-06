@@ -1,0 +1,19 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="microsoft.aspnetcore.identity" Version="2.3.1" />
+    <PackageReference Include="microsoft.aspnetcore.identity.entityframeworkcore" Version="9.0.5" />
+    <PackageReference Include="microsoft.entityframeworkcore.sqlserver" Version="9.0.5" />
+    <PackageReference Include="microsoft.entityframeworkcore.tools" Version="9.0.5">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+  </ItemGroup>
+
+</Project>
