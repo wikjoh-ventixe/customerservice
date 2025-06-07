@@ -1,27 +1,25 @@
-﻿using Data.Interfaces;
+﻿namespace Business.Models;
 
-namespace Data.Models;
-
-public class RepositoryResult<T>
+public abstract class ServiceResult<TResult, TData> where TResult : ServiceResult<TResult, TData>, new()
 {
     public bool Succeeded { get; set; }
     public int StatusCode { get; set; }
     public string? ErrorMessage { get; set; }
-    public T? Data { get; set; } = default;
+    public TData? Data { get; set; }
 
 
-    public static RepositoryResult<T> Ok()
+    public static TResult Ok()
     {
-        return new RepositoryResult<T>
+        return new TResult
         {
             Succeeded = true,
             StatusCode = 200
         };
     }
 
-    public static RepositoryResult<T> Ok(T data)
+    public static TResult Ok(TData data)
     {
-        return new RepositoryResult<T>
+        return new TResult
         {
             Succeeded = true,
             StatusCode = 200,
@@ -29,9 +27,9 @@ public class RepositoryResult<T>
         };
     }
 
-    public static RepositoryResult<T> Created(T data)
+    public static TResult Created(TData data)
     {
-        return new RepositoryResult<T>
+        return new TResult
         {
             Succeeded = true,
             StatusCode = 201,
@@ -39,18 +37,18 @@ public class RepositoryResult<T>
         };
     }
 
-    public static RepositoryResult<T> NoContent()
+    public static TResult NoContent()
     {
-        return new RepositoryResult<T>
+        return new TResult
         {
             Succeeded = true,
             StatusCode = 204
         };
     }
 
-    public static RepositoryResult<T> BadRequest(string errorMessage)
+    public static TResult BadRequest(string errorMessage)
     {
-        return new RepositoryResult<T>
+        return new TResult
         {
             Succeeded = false,
             StatusCode = 400,
@@ -58,9 +56,19 @@ public class RepositoryResult<T>
         };
     }
 
-    public static RepositoryResult<T> NotFound(string errorMessage)
+    public static TResult Unauthorized(string errorMessage)
     {
-        return new RepositoryResult<T>
+        return new TResult
+        {
+            Succeeded = false,
+            StatusCode = 401,
+            ErrorMessage = errorMessage
+        };
+    }
+
+    public static TResult NotFound(string errorMessage)
+    {
+        return new TResult
         {
             Succeeded = false,
             StatusCode = 404,
@@ -68,9 +76,9 @@ public class RepositoryResult<T>
         };
     }
 
-    public static RepositoryResult<T> AlreadyExists(string errorMessage)
+    public static TResult AlreadyExists(string errorMessage)
     {
-        return new RepositoryResult<T>
+        return new TResult
         {
             Succeeded = false,
             StatusCode = 409,
@@ -78,9 +86,9 @@ public class RepositoryResult<T>
         };
     }
 
-    public static RepositoryResult<T> InternalServerError(string errorMessage)
+    public static TResult InternalServerError(string errorMessage)
     {
-        return new RepositoryResult<T>
+        return new TResult
         {
             Succeeded = false,
             StatusCode = 500,

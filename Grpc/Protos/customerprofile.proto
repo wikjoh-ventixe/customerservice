@@ -1,0 +1,74 @@
+syntax = "proto3";
+
+option csharp_namespace = "Protos";
+
+// CREATE
+message CreateCustomerProfileRequest {
+	string userId = 1;
+    string firstName = 2;
+    string lastName = 3;
+    string email = 4;
+    string phoneNumber = 5;
+    string streetAddress = 6;
+    string postalCode = 7;
+    string city = 8;
+}
+
+message CreateCustomerProfileResponse {
+    bool succeeded = 1;
+    int32 statusCode = 2;
+    string errorMessage = 3;
+    string userId = 4;
+}
+
+
+// READ
+message ContactDetails {
+    string email = 1;
+    string phoneNumber = 2;
+}
+
+message Address {
+    string streetAddress = 1;
+    string postalCode = 2;
+    string city = 3;
+}
+
+message CustomerProfile {
+    string userId = 1;
+    string firstName = 2;
+    string lastName = 3;
+    string fullName = 4;
+    ContactDetails contactDetails = 5;
+    Address address = 6;
+}
+
+// Get all
+message GetAllCustomerProfilesRequest {}
+
+message GetAllCustomerProfilesResponse {
+    bool succeeded = 1;
+    int32 statusCode = 2;
+    string errorMessage = 3;
+    repeated CustomerProfile customerProfiles = 4;
+}
+
+// Get one
+message GetCustomerProfileRequest {
+    string userId = 1;
+}
+
+message GetCustomerProfileResponse {
+    bool succeeded = 1;
+    int32 statusCode = 2;
+    string errorMessage = 3;
+    CustomerProfile customerProfile = 4;
+}
+
+
+
+service GrpcCustomerProfile {
+    rpc GetCustomerProfile(GetCustomerProfileRequest) returns (GetCustomerProfileResponse);
+    rpc GetAllCustomerProfiles(GetAllCustomerProfilesRequest) returns (GetAllCustomerProfilesResponse);
+    rpc CreateCustomerProfile(CreateCustomerProfileRequest) returns (CreateCustomerProfileResponse);
+}

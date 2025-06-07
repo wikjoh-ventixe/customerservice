@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore.Storage;
 using System.Diagnostics;
 using System.Linq.Expressions;
 using Data.Interfaces;
+using System.Reflection;
 
 namespace Data.Repositories;
 
@@ -57,7 +58,7 @@ public abstract class BaseRepository<TEntity>(CustomerDbContext context) : IBase
         catch (Exception ex)
         {
             Debug.WriteLine(ex.Message);
-            return RepositoryResult<bool?>.InternalServerErrror(ex.Message);
+            return RepositoryResult<bool?>.InternalServerError($"Exception occurred in {MethodBase.GetCurrentMethod()!.Name}.");
         }
     }
 
@@ -86,7 +87,8 @@ public abstract class BaseRepository<TEntity>(CustomerDbContext context) : IBase
         }
         catch (Exception ex)
         {
-            return RepositoryResult<IEnumerable<TEntity>>.InternalServerErrror(ex.Message);
+            Debug.WriteLine(ex.Message);
+            return RepositoryResult<IEnumerable<TEntity>>.InternalServerError($"Exception occurred in {MethodBase.GetCurrentMethod()!.Name}.");
         }
     }
 
@@ -109,7 +111,8 @@ public abstract class BaseRepository<TEntity>(CustomerDbContext context) : IBase
         }
         catch (Exception ex)
         {
-            return RepositoryResult<TEntity>.InternalServerErrror(ex.Message);
+            Debug.WriteLine(ex.Message);
+            return RepositoryResult<TEntity>.InternalServerError($"Exception occurred in {MethodBase.GetCurrentMethod()!.Name}.");
         }
     }
 
@@ -128,7 +131,8 @@ public abstract class BaseRepository<TEntity>(CustomerDbContext context) : IBase
         catch (Exception ex)
         {
             // catch db connection failure etc
-            return RepositoryResult<bool?>.InternalServerErrror(ex.Message);
+            Debug.WriteLine(ex.Message);
+            return RepositoryResult<bool?>.InternalServerError($"Exception occurred in {MethodBase.GetCurrentMethod()!.Name}.");
         }
 
     }
@@ -148,7 +152,7 @@ public abstract class BaseRepository<TEntity>(CustomerDbContext context) : IBase
         catch (Exception ex)
         {
             Debug.WriteLine(ex.Message);
-            return RepositoryResult<bool?>.InternalServerErrror(ex.Message);
+            return RepositoryResult<bool?>.InternalServerError($"Exception occurred in {MethodBase.GetCurrentMethod()!.Name}.");
         }
     }
 
@@ -167,7 +171,7 @@ public abstract class BaseRepository<TEntity>(CustomerDbContext context) : IBase
         catch (Exception ex)
         {
             Debug.WriteLine(ex.Message);
-            return RepositoryResult<bool?>.InternalServerErrror(ex.Message);
+            return RepositoryResult<bool?>.InternalServerError($"Exception occurred in {MethodBase.GetCurrentMethod()!.Name}.");
         }
     }
 
@@ -183,7 +187,7 @@ public abstract class BaseRepository<TEntity>(CustomerDbContext context) : IBase
         catch (Exception ex)
         {
             Debug.WriteLine(ex.Message);
-            return RepositoryResult<bool?>.InternalServerErrror(ex.Message);
+            return RepositoryResult<bool?>.InternalServerError($"Exception occurred in {MethodBase.GetCurrentMethod()!.Name}.");
         }
     }
 }
