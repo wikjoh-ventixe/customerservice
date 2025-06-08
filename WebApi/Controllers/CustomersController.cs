@@ -1,6 +1,8 @@
 ﻿using Business.Dtos;
 using Business.Interfaces;
 using Business.Models;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -8,6 +10,8 @@ namespace WebApi.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize(Policy = "UserOnly", AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+    // Only for testing. Not used in site.
     public class CustomersController(ICustomerService customerService) : ControllerBase
     {
         private readonly ICustomerService _customerService = customerService;
