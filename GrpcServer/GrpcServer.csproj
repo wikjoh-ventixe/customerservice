@@ -8,15 +8,19 @@
 
   <ItemGroup>
     <PackageReference Include="google.protobuf" Version="3.31.1" />
-    <PackageReference Include="grpc.net.client" Version="2.71.0" />
+    <PackageReference Include="grpc.aspnetcore" Version="2.71.0" />
     <PackageReference Include="grpc.tools" Version="2.72.0">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\Business\Business.csproj" />
+  </ItemGroup>
+
 	<ItemGroup>
-		<Protobuf Include="Protos\customerprofile.proto" GrpcServices="Client" />
+		<Protobuf Include="Protos\customer_auth.proto" GrpcServices="Server" />
 	</ItemGroup>
 
 </Project>

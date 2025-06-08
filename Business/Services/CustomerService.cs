@@ -11,10 +11,11 @@ using System.Reflection;
 
 namespace Business.Services;
 
-public class CustomerService(UserManager<CustomerEntity> userManager, RoleManager<IdentityRole> roleManager, ICustomerRepository customerRepository, GrpcCustomerProfile.GrpcCustomerProfileClient grpcUserProfileClient) : ICustomerService
+public class CustomerService(UserManager<CustomerEntity> userManager, RoleManager<IdentityRole> roleManager, ICustomerRepository customerRepository, GrpcCustomerProfile.GrpcCustomerProfileClient grpcUserProfileClient, SignInManager<CustomerEntity> signInManager) : ICustomerService
 {
     private readonly UserManager<CustomerEntity> _userManager = userManager;
     private readonly RoleManager<IdentityRole> _roleManager = roleManager;
+    private readonly SignInManager<CustomerEntity> _signInManager = signInManager;
     private readonly ICustomerRepository _customerRepository = customerRepository;
     private readonly GrpcCustomerProfile.GrpcCustomerProfileClient _grpcUserProfileClient = grpcUserProfileClient;
 
@@ -154,5 +155,74 @@ public class CustomerService(UserManager<CustomerEntity> userManager, RoleManage
             await _customerRepository.RollbackTransactionAsync();
             return CustomerResult<Customer?>.InternalServerError($"Exception occurred in {MethodBase.GetCurrentMethod()!.Name}.");
         }
+    }
+
+    public async Task<CustomerResult<Customer?>> CreateCustomerWithPasswordWithoutProfileAsync(string email, string password)
+    {
+        if (string.IsNullOrWhiteSpace(email) || string.IsNullOrWhiteSpace(password))
+            return CustomerResult<Customer?>.BadRequest("Parameters cannot be null.");
+
+        if (await _userManager.Users.AnyAsync(u => u.Email == email))
+            return CustomerResult<Customer?>.AlreadyExists("Customer with given email adress already exists.");
+
+        var customerEntity = new CustomerEntity
+        {
+            Email = email,
+            UserName = email,
+        };
+
+        try
+        {
+            await _customerRepository.BeginTransactionAsync();
+
+            var createUserResult = await _userManager.CreateAsync(customerEntity, password);
+            if (!createUserResult.Succeeded)
+            {
+                await _customerRepository.RollbackTransactionAsync();
+                return CustomerResult<Customer?>.InternalServerError($"Failed creating customer with email {customerEntity.Email}. Rolling back.");
+            }
+
+            var createdCustomerEntity = _userManager.Users.FirstOrDefault(x => x.Id == customerEntity.Id);
+            if (createdCustomerEntity == null)
+            {
+                await _customerRepository.RollbackTransactionAsync();
+                return CustomerResult<Customer?>.InternalServerError($"Failed retrieving customer entity after creation. Rolling back.");
+            }
+
+            await _customerRepository.CommitTransactionAsync();
+            var createdCustomer = new Customer
+            {
+                Id = createdCustomerEntity.Id,
+                Email = createdCustomerEntity.Email!,
+                Created = createdCustomerEntity.Created
+            };
+            return CustomerResult<Customer?>.Created(createdCustomer);
+        }
+        catch (Exception ex)
+        {
+            await _customerRepository.RollbackTransactionAsync();
+            return CustomerResult<Customer?>.InternalServerError($"Exception occurred in {MethodBase.GetCurrentMethod()!.Name}.");
+        }
+    }
+
+
+    // READ
+    public async Task<CustomerResult<AuthData>> LoginCustomerAsync(CustomerLoginRequestDto request)
+    {
+        if (request == null)
+            return CustomerResult<AuthData>.BadRequest("Request cannot be null.");
+
+        var result = await _signInManager.PasswordSignInAsync(request.Email, request.Password, false, false);
+        if (result.Succeeded)
+        {
+            var user = await _userManager.FindByEmailAsync(request.Email);
+            return CustomerResult<AuthData>.Ok(new AuthData
+            {
+                UserId = user!.Id,
+                EmailConfirmed = user.EmailConfirmed,
+            });
+        }
+
+        return CustomerResult<AuthData>.Unauthorized("Customer authentication failed.");
     }
 }
