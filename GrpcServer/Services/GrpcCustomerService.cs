@@ -1,7 +1,7 @@
 ﻿using Business.Dtos;
 using Business.Interfaces;
 using Grpc.Core;
-using Protos;
+using Grpc.CustomerAuth;
 using System.Diagnostics;
 
 namespace GrpcServer.Services;
