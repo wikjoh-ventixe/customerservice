@@ -26,7 +26,8 @@ public class GrpcCustomerAuthService(ICustomerService customerService) : GrpcCus
         if (result.Data != null)
             response.AuthInfo = new AuthInfo
             {
-                UserId = result.Data.Id
+                UserId = result.Data.Id,
+                ConfirmEmailToken = result.Data.ConfirmEmailToken,
             };
 
         return response;
@@ -59,5 +60,20 @@ public class GrpcCustomerAuthService(ICustomerService customerService) : GrpcCus
         }
 
         return response;
+    }
+
+
+    public override async Task<ValidateEmailTokenResponse> ValidateEmailToken(ValidateEmailTokenRequest request, ServerCallContext context)
+    {
+        Debug.WriteLine("Attempting to validate email token.");
+
+        var result = await _customerService.ValidateEmailToken(request.Email, request.Token);
+
+        return new ValidateEmailTokenResponse
+        {
+            Succeeded = result.Succeeded,
+            StatusCode = result.StatusCode,
+            ErrorMessage = result.ErrorMessage ?? string.Empty,
+        };
     }
 }

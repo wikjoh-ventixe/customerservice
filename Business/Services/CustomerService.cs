@@ -7,6 +7,7 @@ using Data.Repositories;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Protos;
+using System.Net;
 using System.Reflection;
 
 namespace Business.Services;
@@ -196,6 +197,12 @@ public class CustomerService(UserManager<CustomerEntity> userManager, RoleManage
                 Email = createdCustomerEntity.Email!,
                 Created = createdCustomerEntity.Created
             };
+
+            // Generate email confirmation token and include in response
+            var token = await _userManager.GenerateEmailConfirmationTokenAsync(createdCustomerEntity);
+            var encodedToken = WebUtility.UrlEncode(token);
+            createdCustomer.ConfirmEmailToken = encodedToken;
+
             return CustomerResult<Customer?>.Created(createdCustomer);
         }
         catch (Exception ex)
@@ -205,6 +212,18 @@ public class CustomerService(UserManager<CustomerEntity> userManager, RoleManage
         }
     }
 
+    public async Task<CustomerResult<bool?>> ValidateEmailToken(string userId, string emailToken)
+    {
+        var userEntity = await _userManager.FindByIdAsync(userId);
+        if (userEntity == null)
+            return CustomerResult<bool?>.NotFound($"User with user id {userId} not found.");
+
+        var result = await _userManager.ConfirmEmailAsync(userEntity, emailToken);
+        if (!result.Succeeded)
+            return CustomerResult<bool?>.Unauthorized("Token failed validation.");
+
+        return CustomerResult<bool?>.Ok(true);
+    }
 
     // READ
     public async Task<CustomerResult<AuthData>> LoginCustomerAsync(CustomerLoginRequestDto request)
