@@ -212,11 +212,11 @@ public class CustomerService(UserManager<CustomerEntity> userManager, RoleManage
         }
     }
 
-    public async Task<CustomerResult<bool?>> ValidateEmailToken(string userId, string emailToken)
+    public async Task<CustomerResult<bool?>> ValidateEmailToken(string email, string emailToken)
     {
-        var userEntity = await _userManager.FindByIdAsync(userId);
+        var userEntity = await _userManager.FindByEmailAsync(email);
         if (userEntity == null)
-            return CustomerResult<bool?>.NotFound($"User with user id {userId} not found.");
+            return CustomerResult<bool?>.NotFound($"User with email {email} not found.");
 
         var result = await _userManager.ConfirmEmailAsync(userEntity, emailToken);
         if (!result.Succeeded)
